@@ -18,7 +18,7 @@ jobs:
             echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker push $IMAGE_NAME:latest
 workflows:
-  build-master:
+  commit:
     jobs:
       - build-and-push:
           context:
@@ -26,3 +26,15 @@ workflows:
           filters:
             branches:
               only: master
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"   # try to rebuild and push every day
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build-and-push:
+          context:
+            - docker-hub 
